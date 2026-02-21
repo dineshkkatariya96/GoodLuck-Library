@@ -27,14 +27,16 @@ function Register() {
       onSubmit={submit}
       style={{
         maxWidth: 400,
+        width: "90vw",
         margin: "40px auto",
-        padding: 32,
+        padding: "6vw",
         borderRadius: 16,
         background: "#f0f4ff",
         boxShadow: "0 4px 16px rgba(0,0,0,0.08)",
         display: "flex",
         flexDirection: "column",
         gap: 16,
+        boxSizing: "border-box",
       }}
     >
       <h2 style={{ color: "#2575fc", textAlign: "center" }}>Register</h2>

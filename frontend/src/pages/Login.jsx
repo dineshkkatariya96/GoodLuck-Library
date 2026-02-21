@@ -17,9 +17,17 @@ function Login() {
 
   const submitLogin = async (e) => {
     e.preventDefault();
-    const { data } = await API.post("/api/auth/login", loginForm);
-    login(data);
-    alert("Login Success");
+    try {
+      const { data } = await API.post("/api/auth/login", loginForm);
+      login(data);
+      alert("Login Success");
+    } catch (error) {
+      if (error.response && error.response.data && error.response.data.message === "User not found") {
+        alert("User does not exist. Please register first, then login again.");
+      } else {
+        alert(error.response?.data?.message || "Login failed");
+      }
+    }
   };
 
   const submitSignup = async (e) => {
@@ -35,16 +43,18 @@ function Login() {
   };
 
   return (
-    <div
-      style={{
-        maxWidth: 400,
-        margin: "40px auto",
-        padding: 32,
-        borderRadius: 16,
-        background: "#f0f4ff",
-        boxShadow: "0 4px 16px rgba(0,0,0,0.08)",
-      }}
-    >
+      <div
+        style={{
+          maxWidth: 400,
+          width: "90vw",
+          margin: "40px auto",
+          padding: "6vw",
+          borderRadius: 16,
+          background: "#f0f4ff",
+          boxShadow: "0 4px 16px rgba(0,0,0,0.08)",
+          boxSizing: "border-box",
+        }}
+      >
       <div style={{ display: "flex", justifyContent: "center", gap: 16, marginBottom: 24 }}>
         <button
           style={{

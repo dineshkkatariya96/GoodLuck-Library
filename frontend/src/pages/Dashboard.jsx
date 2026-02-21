@@ -19,6 +19,14 @@ function Dashboard() {
         setPlans(planRes.data);
       } catch (error) {
         alert("Error fetching data");
+          // Prototype: fallback to 20 seats if fetch fails
+          setSeats(Array.from({ length: 20 }, (_, i) => ({ seatNumber: i + 1, isBooked: false })));
+          setPlans([
+            { _id: "plan1", name: "1 Month", price: 500, durationInMonths: 1 },
+            { _id: "plan2", name: "2 Months", price: 950, durationInMonths: 2 },
+            { _id: "plan3", name: "3 Months", price: 1300, durationInMonths: 3 },
+            { _id: "plan4", name: "1 Year", price: 4000, durationInMonths: 12 },
+          ]);
       } finally {
         setLoading(false);
       }
@@ -30,18 +38,19 @@ function Dashboard() {
   // Book Seat Function
   const bookSeat = async (seatNumber) => {
     if (!selectedPlan) {
-      return alert("Please select a plan first");
+      alert("Please select a plan first");
+      return;
     }
-
     try {
-      await API.post("/api/seats/book", {
+      const res = await API.post("/api/seats/book", {
         seatNumber,
         planId: selectedPlan,
       });
-
-      alert("Seat booked successfully 🎉");
-
-      // Update seat state without reload
+      if (res.data && res.data.success) {
+        alert("Seat booked successfully 🎉");
+      } else {
+        alert("Booking submitted. Please check your seat status.");
+      }
       setSeats((prevSeats) =>
         prevSeats.map((seat) =>
           seat.seatNumber === seatNumber
@@ -55,50 +64,58 @@ function Dashboard() {
   };
 
   if (loading) {
-    return <h2 style={{ padding: 20 }}>Loading...</h2>;
+      return <div style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "50vh" }}>
+        <h2 style={{ padding: 20, color: "#2575fc", fontSize: "2em" }}>Loading...</h2>
+      </div>;
   }
 
   return (
-    <div style={{ padding: 20 }}>
-      <div style={{ maxWidth: 900, margin: "0 auto" }}>
-        <h2 style={{ color: "#2575fc" }}>Select Membership Plan</h2>
-        <select
-          value={selectedPlan}
-          onChange={(e) => setSelectedPlan(e.target.value)}
-          style={{
-            padding: 12,
-            marginBottom: 24,
-            borderRadius: 8,
-            border: "1px solid #2575fc",
-            fontSize: 16,
-            width: "100%",
-            background: "#f0f4ff",
-          }}
-        >
-          <option value="">-- Select Plan --</option>
-          {plans.map((plan) => (
-            <option key={plan._id} value={plan._id}>
-              {plan.name} ({plan.durationInMonths} Month) - ₹{plan.price}
-            </option>
-          ))}
-        </select>
-
-        <h2 style={{ color: "#2575fc" }}>Available Seats</h2>
+    <div style={{ padding: "2vw", minHeight: "80vh", boxSizing: "border-box" }}>
+      <div style={{ maxWidth: 900, margin: "0 auto", background: "#fff", borderRadius: 16, boxShadow: "0 4px 16px rgba(0,0,0,0.08)", padding: "3vw", boxSizing: "border-box" }}>
+        <h2 style={{ color: "#2575fc", fontSize: "2em", textAlign: "center", marginBottom: 24 }}>Select Membership Plan</h2>
+        <form onSubmit={e => e.preventDefault()} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+          <select
+            value={selectedPlan}
+            onChange={(e) => setSelectedPlan(e.target.value)}
+            style={{
+              padding: 12,
+              borderRadius: 8,
+              border: "1px solid #2575fc",
+              fontSize: 16,
+              width: "100%",
+              background: "#f0f4ff",
+              marginBottom: 8,
+            }}
+            required
+          >
+            <option value="">-- Select Plan --</option>
+            {plans.map((plan) => (
+              <option key={plan._id} value={plan._id}>
+                {plan.name} ({plan.durationInMonths} Month{plan.durationInMonths > 1 ? "s" : ""}) - ₹{plan.price}
+              </option>
+            ))}
+          </select>
+        </form>
+        <h2 style={{ color: "#2575fc", fontSize: "1.5em", textAlign: "center", margin: "24px 0 16px 0" }}>Available Seats</h2>
         <div
           style={{
             display: "grid",
             gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))",
             gap: 20,
+            width: "100%",
+            margin: "auto",
           }}
         >
-          {seats.map((seat) => (
+          {seats.map((seat, idx) => (
             <SeatCard
-              key={seat._id}
+              key={seat._id || idx}
               seat={seat}
               onBook={bookSeat}
             />
           ))}
         </div>
+        {/* Submit button for booking (if needed) */}
+        {/* If you want a separate booking form, add here */}
       </div>
     </div>
   );

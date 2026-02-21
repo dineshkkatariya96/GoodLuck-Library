@@ -20,18 +20,23 @@ function Navbar() {
     color: "#fff",
     transform: "scale(1.08)",
   };
+  const navStyle = {
+    padding: "16px 32px",
+    background: "linear-gradient(90deg, #6a11cb 0%, #2575fc 100%)",
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
+    flexWrap: "wrap",
+  };
+  const linksContainerStyle = {
+    display: "flex",
+    gap: 24,
+    flexWrap: "wrap",
+  };
   return (
-    <nav
-      style={{
-        padding: "16px 32px",
-        background: "linear-gradient(90deg, #6a11cb 0%, #2575fc 100%)",
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center",
-        boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
-      }}
-    >
-      <div style={{ display: "flex", gap: 24 }}>
+    <nav style={navStyle}>
+      <div style={linksContainerStyle}>
         <NavLink to="/" style={({ isActive }) => ({ ...linkStyle, ...(isActive ? linkHoverStyle : {}) })}>
           <FaHome /> Home
         </NavLink>
