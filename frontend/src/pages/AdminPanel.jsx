@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 import API from "../services/api";
 
 function AdminPanel() {
@@ -20,7 +21,7 @@ function AdminPanel() {
 
   const createPlan = async () => {
     await API.post("/api/plans", planData);
-    alert("Plan Created");
+    toast.success("Plan Created");
     window.location.reload();
   };
 
@@ -28,7 +29,7 @@ function AdminPanel() {
     await API.post("/api/seats/create", {
       totalSeats: seatCount,
     });
-    alert("Seats Created");
+    toast.success("Seats Created");
   };
 
   return (

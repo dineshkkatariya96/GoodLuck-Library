@@ -1,4 +1,5 @@
 import { useState } from "react";
+import toast from "react-hot-toast";
 import API from "../services/api";
 import { useNavigate } from "react-router-dom";
 
@@ -18,7 +19,7 @@ function Register() {
     e.preventDefault();
 
     await API.post("/api/auth/register", form);
-    alert("Registration successful. Please login.");
+    toast.success("Registration successful. Please login.");
     navigate("/login");
   };
 

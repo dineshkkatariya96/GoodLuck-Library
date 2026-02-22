@@ -6,6 +6,7 @@ import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
 import AdminPanel from "./pages/AdminPanel";
 import ProblemPage from "./pages/ProblemPage";
+import Profile from "./pages/Profile";
 
 // Components
 import Navbar from "./component/Navbar";
@@ -22,6 +23,15 @@ function App() {
         <Route path="/register" element={<Register />} />
 
         {/* Protected User Routes */}
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute>
+              <Profile />
+            </ProtectedRoute>
+          }
+        />
+
         <Route
           path="/dashboard"
           element={

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 import API from "../services/api";
 import SeatCard from "../component/SeatCard";
 
@@ -18,7 +19,7 @@ function Dashboard() {
         setSeats(seatRes.data);
         setPlans(planRes.data);
       } catch (error) {
-        alert("Error fetching data");
+        toast.error("Error fetching data");
           // Prototype: fallback to 20 seats if fetch fails
           setSeats(Array.from({ length: 20 }, (_, i) => ({ seatNumber: i + 1, isBooked: false })));
           setPlans([
@@ -38,7 +39,7 @@ function Dashboard() {
   // Book Seat Function
   const bookSeat = async (seatNumber) => {
     if (!selectedPlan) {
-      alert("Please select a plan first");
+      toast.error("Please select a plan first");
       return;
     }
     try {
@@ -47,19 +48,23 @@ function Dashboard() {
         planId: selectedPlan,
       });
       if (res.data && res.data.success) {
-        alert("Seat booked successfully 🎉");
+        toast.success("Seat booked successfully 🎉");
+        
+        // Find the selected plan to get expiry info
+        const plan = plans.find(p => p._id === selectedPlan);
+        if (plan) {
+          const expiryDate = new Date(res.data.expiryDate);
+          toast.success(`Your membership expires on ${expiryDate.toLocaleDateString()}`);
+        }
+        
+        // Refresh seats to show updated status
+        const updatedSeats = await API.get("/api/seats");
+        setSeats(updatedSeats.data);
       } else {
-        alert("Booking submitted. Please check your seat status.");
+        toast.success("Booking submitted. Please check your seat status.");
       }
-      setSeats((prevSeats) =>
-        prevSeats.map((seat) =>
-          seat.seatNumber === seatNumber
-            ? { ...seat, isBooked: true }
-            : seat
-        )
-      );
     } catch (error) {
-      alert(error.response?.data?.message || "Booking failed");
+      toast.error(error.response?.data?.message || "Booking failed");
     }
   };
 

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import toast from "react-hot-toast";
 import API from "../services/api";
 
 function ProblemPage() {
@@ -7,7 +8,7 @@ function ProblemPage() {
   const submit = async (e) => {
     e.preventDefault();
     await API.post("/api/problems", { message });
-    alert("Problem submitted");
+    toast.success("Problem submitted");
   };
 
   return (
