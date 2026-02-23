@@ -15,21 +15,64 @@ function AdminPanel() {
   const [seatCount, setSeatCount] = useState("");
 
   useEffect(() => {
-    API.get("/api/plans").then(res => setPlans(res.data));
-    API.get("/api/problems").then(res => setProblems(res.data));
+    const fetchData = async () => {
+      try {
+        const plansRes = await API.get("/api/plans");
+        if (plansRes.data) setPlans(plansRes.data);
+      } catch (error) {
+        toast.error("Failed to load plans");
+        console.error("Error loading plans:", error);
+      }
+
+      try {
+        const problemsRes = await API.get("/api/problems");
+        if (problemsRes.data) setProblems(problemsRes.data);
+      } catch (error) {
+        toast.error("Failed to load problems");
+        console.error("Error loading problems:", error);
+      }
+    };
+
+    fetchData();
   }, []);
 
   const createPlan = async () => {
-    await API.post("/api/plans", planData);
-    toast.success("Plan Created");
-    window.location.reload();
+    try {
+      if (!planData.name || !planData.durationInMonths || !planData.price) {
+        toast.error("Please fill in all plan details");
+        return;
+      }
+      
+      await API.post("/api/plans", {
+        ...planData,
+        durationInMonths: parseInt(planData.durationInMonths),
+        price: parseInt(planData.price),
+      });
+      
+      toast.success("Plan created successfully! 🎉");
+      setPlanData({ name: "", durationInMonths: "", price: "" });
+      window.location.reload();
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Failed to create plan");
+    }
   };
 
   const createSeats = async () => {
-    await API.post("/api/seats/create", {
-      totalSeats: seatCount,
-    });
-    toast.success("Seats Created");
+    try {
+      if (!seatCount || seatCount <= 0) {
+        toast.error("Please enter a valid number of seats");
+        return;
+      }
+      
+      const res = await API.post("/api/seats/create", {
+        totalSeats: parseInt(seatCount),
+      });
+      
+      toast.success(`${seatCount} seats created successfully! 🎉`);
+      setSeatCount("");
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Failed to create seats");
+    }
   };
 
   return (

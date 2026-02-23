@@ -16,18 +16,20 @@ function Dashboard() {
         const seatRes = await API.get("/api/seats");
         const planRes = await API.get("/api/plans");
 
-        setSeats(seatRes.data);
-        setPlans(planRes.data);
+        setSeats(seatRes.data || []);
+        setPlans(planRes.data || []);
       } catch (error) {
-        toast.error("Error fetching data");
-          // Prototype: fallback to 20 seats if fetch fails
-          setSeats(Array.from({ length: 20 }, (_, i) => ({ seatNumber: i + 1, isBooked: false })));
-          setPlans([
-            { _id: "plan1", name: "1 Month", price: 500, durationInMonths: 1 },
-            { _id: "plan2", name: "2 Months", price: 950, durationInMonths: 2 },
-            { _id: "plan3", name: "3 Months", price: 1300, durationInMonths: 3 },
-            { _id: "plan4", name: "1 Year", price: 4000, durationInMonths: 12 },
-          ]);
+        console.error("Error fetching data:", error);
+        toast.error("Error fetching seats and plans");
+        
+        // Prototype: fallback to 20 seats if fetch fails
+        setSeats(Array.from({ length: 20 }, (_, i) => ({ _id: `temp-${i}`, seatNumber: i + 1, isBooked: false })));
+        setPlans([
+          { _id: "plan1", name: "1 Month", price: 500, durationInMonths: 1 },
+          { _id: "plan2", name: "2 Months", price: 950, durationInMonths: 2 },
+          { _id: "plan3", name: "3 Months", price: 1300, durationInMonths: 3 },
+          { _id: "plan4", name: "1 Year", price: 4000, durationInMonths: 12 },
+        ]);
       } finally {
         setLoading(false);
       }
@@ -70,8 +72,25 @@ function Dashboard() {
 
   if (loading) {
       return <div style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "50vh" }}>
-        <h2 style={{ padding: 20, color: "#2575fc", fontSize: "2em" }}>Loading...</h2>
+        <h2 style={{ padding: 20, color: "#2575fc", fontSize: "2em" }}>Loading seats...</h2>
       </div>;
+  }
+
+  // Show message if no seats are available
+  if (!seats || seats.length === 0) {
+    return (
+      <div style={{ padding: "20px", minHeight: "80vh", textAlign: "center" }}>
+        <div style={{ maxWidth: 900, margin: "0 auto", background: "#fff", borderRadius: 16, boxShadow: "0 4px 16px rgba(0,0,0,0.08)", padding: "3vw", boxSizing: "border-box" }}>
+          <h2 style={{ color: "#dc3545", fontSize: "2em", marginBottom: 16 }}>⚠️ No Seats Available</h2>
+          <p style={{ color: "#666", fontSize: "1.1em", marginBottom: 16 }}>
+            The seating system has not been initialized yet. Please contact an administrator to set up seats.
+          </p>
+          <p style={{ color: "#999", fontSize: "0.95em" }}>
+            Admin account holders can create seats from the Admin Panel.
+          </p>
+        </div>
+      </div>
+    );
   }
 
   return (
