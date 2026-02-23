@@ -2,7 +2,7 @@ import { useContext, useState } from "react";
 import { AuthContext } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
-import { FaUser, FaEnvelope, FaCalendarAlt, FaChair, FaSignOutAlt, FaArrowLeft } from "react-icons/fa";
+import { FaUser, FaEnvelope, FaCalendarAlt, FaChair, FaSignOutAlt, FaArrowLeft, FaPhone } from "react-icons/fa";
 
 function Profile() {
   const { user, logout } = useContext(AuthContext);
@@ -31,6 +31,22 @@ function Profile() {
     const now = new Date();
     const daysLeft = Math.ceil((expiry - now) / (1000 * 60 * 60 * 24));
     return daysLeft > 0 ? daysLeft : 0;
+  };
+
+  const getCountryName = (code) => {
+    const countryCodes = {
+      "+91": "India",
+      "+1": "USA/Canada",
+      "+44": "UK",
+      "+86": "China",
+      "+81": "Japan",
+      "+61": "Australia",
+      "+33": "France",
+      "+49": "Germany",
+      "+39": "Italy",
+      "+34": "Spain",
+    };
+    return countryCodes[code] || code;
   };
 
   if (!user) {
@@ -130,6 +146,22 @@ function Profile() {
                 <p style={{ margin: 0, fontSize: 18, fontWeight: 600, color: "#333" }}>{user.email}</p>
               </div>
 
+              {/* Mobile Number Card */}
+              <div style={{
+                background: "#f0f4ff",
+                borderRadius: 12,
+                padding: 20,
+                border: "2px solid #2575fc",
+              }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 12 }}>
+                  <FaPhone style={{ color: "#2575fc", fontSize: 20 }} />
+                  <label style={{ color: "#666", fontWeight: 600, fontSize: 14 }}>Mobile Number</label>
+                </div>
+                <p style={{ margin: 0, fontSize: 18, fontWeight: 600, color: "#333" }}>
+                  {user.countryCode || "+91"}({getCountryName(user.countryCode || "+91")}) {user.mobileNumber || "Not added"}
+                </p>
+              </div>
+
               {/* Seat Card */}
               <div style={{
                 background: "#f0f4ff",
@@ -212,7 +244,7 @@ function Profile() {
               flexWrap: "wrap",
             }}>
               <button
-                onClick={() => navigate("/dashboard")}
+                onClick={() => navigate("/")}
                 style={{
                   padding: "14px 32px",
                   borderRadius: 8,

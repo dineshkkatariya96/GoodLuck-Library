@@ -1,11 +1,8 @@
 import express from "express";
-import { register, login } from "../controllers/authController.js";
 import { generateOTP, verifyOTP } from "../controllers/otpController.js";
 
 const router = express.Router();
 
-router.post("/register", register);
-router.post("/login", login);
 router.post("/generate-otp", generateOTP);
 router.post("/verify-otp", verifyOTP);
 

@@ -3,7 +3,7 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
 export const register = async (req, res) => {
-  const { name, email, password } = req.body;
+  const { name, email, password, countryCode, mobileNumber } = req.body;
 
   try {
     // Check if user already exists
@@ -13,7 +13,7 @@ export const register = async (req, res) => {
     }
 
     // Validate inputs
-    if (!name || !email || !password) {
+    if (!name || !email || !password || !mobileNumber) {
       return res.status(400).json({ message: "Please provide all required fields" });
     }
 
@@ -24,7 +24,9 @@ export const register = async (req, res) => {
     const user = await User.create({
       name,
       email: email.toLowerCase(),
-      password: hashed
+      password: hashed,
+      countryCode: countryCode || "+91",
+      mobileNumber
     });
 
     // Return user data without password
@@ -32,7 +34,9 @@ export const register = async (req, res) => {
       _id: user._id,
       name: user.name,
       email: user.email,
-      role: user.role
+      role: user.role,
+      countryCode: user.countryCode,
+      mobileNumber: user.mobileNumber
     };
 
     res.status(201).json({ 
@@ -83,6 +87,8 @@ export const login = async (req, res) => {
       name: user.name,
       email: user.email,
       role: user.role,
+      countryCode: user.countryCode,
+      mobileNumber: user.mobileNumber,
       seatNumber: user.seatNumber,
       membershipExpiry: user.membershipExpiry
     };

@@ -3,7 +3,7 @@ import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import API from "../services/api";
 import { AuthContext } from "../context/AuthContext";
-import { FaGoogle, FaSignOutAlt, FaUser } from "react-icons/fa";
+import { FaSignOutAlt, FaUser } from "react-icons/fa";
 function Login() {
   const { user, login, logout } = useContext(AuthContext);
   const navigate = useNavigate();
@@ -12,7 +12,26 @@ function Login() {
   
   // Changed username to email to match backend expectation
   const [loginForm, setLoginForm] = useState({ email: "", password: "" });
-  const [signupForm, setSignupForm] = useState({ name: "", email: "", password: "" });
+  const [signupForm, setSignupForm] = useState({ 
+    name: "", 
+    email: "", 
+    password: "",
+    countryCode: "+91",
+    mobileNumber: ""
+  });
+
+  const countryCodes = [
+    { code: "+91", countryName: "India" },
+    { code: "+1", countryName: "USA/Canada" },
+    { code: "+44", countryName: "UK" },
+    { code: "+86", countryName: "China" },
+    { code: "+81", countryName: "Japan" },
+    { code: "+61", countryName: "Australia" },
+    { code: "+33", countryName: "France" },
+    { code: "+49", countryName: "Germany" },
+    { code: "+39", countryName: "Italy" },
+    { code: "+34", countryName: "Spain" },
+  ];
 
   const handleLoginChange = (e) => {
     setLoginForm({ ...loginForm, [e.target.name]: e.target.value });
@@ -20,10 +39,6 @@ function Login() {
   
   const handleSignupChange = (e) => {
     setSignupForm({ ...signupForm, [e.target.name]: e.target.value });
-  };
-
-  const handleGoogleLogin = () => {
-    toast.coming("Google Login feature coming soon!");
   };
 
   const handleLogout = () => {
@@ -56,9 +71,20 @@ function Login() {
   const submitSignup = async (e) => {
     e.preventDefault();
     try {
+      if (!signupForm.mobileNumber) {
+        toast.error("Please enter a mobile number");
+        return;
+      }
+      
+      if (signupForm.mobileNumber.length < 7) {
+        toast.error("Mobile number should be at least 7 digits");
+        return;
+      }
+
       await API.post("/api/auth/register", signupForm);
       toast.success("Registration successful! Your data has been saved. Please login now.");
       setTab("login");
+      setSignupForm({ name: "", email: "", password: "", countryCode: "+91", mobileNumber: "" });
     } catch (error) {
       toast.error(error.response?.data?.message || "Registration failed");
     }
@@ -207,7 +233,7 @@ function Login() {
   return (
       <div
         style={{
-          maxWidth: 400,
+          maxWidth: 550,
           width: "90vw",
           margin: "40px auto",
           padding: "6vw",
@@ -287,27 +313,6 @@ function Login() {
           >
             Login
           </button>
-          <button
-            type="button"
-            onClick={handleGoogleLogin}
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: 8,
-              padding: "12px 0",
-              borderRadius: 8,
-              background: "#fff",
-              color: "#2575fc",
-              border: "1px solid #2575fc",
-              fontWeight: 600,
-              fontSize: 18,
-              cursor: "pointer",
-              marginTop: 8,
-            }}
-          >
-            <FaGoogle /> Login with Google
-          </button>
         </form>
       ) : (
         <form onSubmit={submitSignup} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
@@ -317,13 +322,16 @@ function Login() {
             placeholder="Name"
             value={signupForm.name}
             onChange={handleSignupChange}
+            required
             style={{ padding: 12, borderRadius: 8, border: "1px solid #2575fc", fontSize: 16 }}
           />
           <input
             name="email"
+            type="email"
             placeholder="Email"
             value={signupForm.email}
             onChange={handleSignupChange}
+            required
             style={{ padding: 12, borderRadius: 8, border: "1px solid #2575fc", fontSize: 16 }}
           />
           <input
@@ -332,8 +340,50 @@ function Login() {
             placeholder="Password"
             value={signupForm.password}
             onChange={handleSignupChange}
+            required
             style={{ padding: 12, borderRadius: 8, border: "1px solid #2575fc", fontSize: 16 }}
           />
+
+          {/* Country Code and Mobile Number */}
+          <div style={{ display: "flex", gap: 12 }}>
+            <select
+              name="countryCode"
+              value={signupForm.countryCode}
+              onChange={handleSignupChange}
+              style={{
+                flex: 0.4,
+                padding: 12,
+                borderRadius: 8,
+                border: "1px solid #2575fc",
+                fontSize: 16,
+                background: "#fff",
+                cursor: "pointer",
+              }}
+            >
+              {countryCodes.map((country) => (
+                <option key={country.code} value={country.code}>
+                  {country.code}({country.countryName})
+                </option>
+              ))}
+            </select>
+
+            <input
+              name="mobileNumber"
+              type="tel"
+              placeholder="Mobile Number"
+              value={signupForm.mobileNumber}
+              onChange={handleSignupChange}
+              required
+              style={{
+                flex: 0.6,
+                padding: 12,
+                borderRadius: 8,
+                border: "1px solid #2575fc",
+                fontSize: 16,
+              }}
+            />
+          </div>
+
           <button
             style={{
               padding: "12px 0",
@@ -348,27 +398,6 @@ function Login() {
             }}
           >
             Sign Up
-          </button>
-          <button
-            type="button"
-            onClick={handleGoogleLogin}
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: 8,
-              padding: "12px 0",
-              borderRadius: 8,
-              background: "#fff",
-              color: "#2575fc",
-              border: "1px solid #2575fc",
-              fontWeight: 600,
-              fontSize: 18,
-              cursor: "pointer",
-              marginTop: 8,
-            }}
-          >
-            <FaGoogle /> Sign Up with Google
           </button>
         </form>
       )}
