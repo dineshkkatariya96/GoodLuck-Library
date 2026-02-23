@@ -84,3 +84,69 @@ export const bookSeat = async (req, res) => {
     res.status(500).json({ message: "Error booking seat", error: error.message });
   }
 };
+
+export const getSeatsWithUserDetails = async (req, res) => {
+  try {
+    const seats = await Seat.find().sort({ seatNumber: 1 });
+    const currentDate = new Date();
+
+    const seatsWithUsers = await Promise.all(
+      seats.map(async (seat) => {
+        let seatData = {
+          _id: seat._id,
+          seatNumber: seat.seatNumber,
+          isBooked: seat.isBooked,
+          membershipExpiry: seat.membershipExpiry,
+          user: null,
+        };
+
+        // Check if booking is expired
+        if (seat.isBooked && seat.membershipExpiry && seat.membershipExpiry < currentDate) {
+          seatData.isBooked = false;
+          seatData.membershipExpiry = null;
+          return seatData;
+        }
+
+        // If booked, get user details
+        if (seat.isBooked && seat.bookedBy) {
+          const user = await User.findById(seat.bookedBy).select(
+            "name email countryCode mobileNumber"
+          );
+          seatData.user = user;
+        }
+
+        return seatData;
+      })
+    );
+
+    res.json(seatsWithUsers);
+  } catch (error) {
+    console.error("Error fetching seats with user details:", error);
+    res.status(500).json({ message: "Error fetching seats", error: error.message });
+  }
+};
+
+export const deleteSeat = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const seat = await Seat.findByIdAndDelete(id);
+
+    if (!seat) {
+      return res.status(404).json({ message: "Seat not found" });
+    }
+
+    // If the seat was booked, clear the seat assignment from the user
+    if (seat.bookedBy) {
+      await User.findByIdAndUpdate(seat.bookedBy, {
+        seatNumber: null,
+        membershipExpiry: null
+      });
+    }
+
+    res.json({ message: "Seat deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting seat:", error);
+    res.status(500).json({ message: "Error deleting seat", error: error.message });
+  }
+};

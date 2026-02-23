@@ -2,6 +2,7 @@ import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
 import connectDB from "./config/db.js";
+import { seedAdminUser } from "./utils/seedAdmin.js";
 
 // Import Routes
 import authRoutes from "./routes/authRoutes.js";
@@ -13,6 +14,9 @@ dotenv.config();
 
 // Connect Database
 connectDB();
+
+// Seed admin user on startup
+seedAdminUser();
 
 const app = express();
 

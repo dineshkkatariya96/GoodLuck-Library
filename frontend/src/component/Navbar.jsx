@@ -115,12 +115,22 @@ function Navbar() {
         <NavLink to="/" style={({ isActive }) => ({ ...linkStyle, ...(isActive ? linkHoverStyle : {}) })}>
           <FaHome /> Home
         </NavLink>
-        <NavLink to="/dashboard" style={({ isActive }) => ({ ...linkStyle, ...(isActive ? linkHoverStyle : {}) })}>
-          <FaChair /> Seats
-        </NavLink>
-        <NavLink to="/problem" style={({ isActive }) => ({ ...linkStyle, ...(isActive ? linkHoverStyle : {}) })}>
-          <FaExclamationCircle /> Problem
-        </NavLink>
+        {user && user.role === "admin" ? (
+          <>
+            <NavLink to="/admin" style={({ isActive }) => ({ ...linkStyle, ...(isActive ? linkHoverStyle : {}) })}>
+              <FaHome /> Admin Panel
+            </NavLink>
+          </>
+        ) : (
+          <>
+            <NavLink to="/dashboard" style={({ isActive }) => ({ ...linkStyle, ...(isActive ? linkHoverStyle : {}) })}>
+              <FaChair /> Seats
+            </NavLink>
+            <NavLink to="/problem" style={({ isActive }) => ({ ...linkStyle, ...(isActive ? linkHoverStyle : {}) })}>
+              <FaExclamationCircle /> Problem
+            </NavLink>
+          </>
+        )}
       </div>
 
       <div style={{ position: "relative", zIndex: 100 }} data-user-menu>
